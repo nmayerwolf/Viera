@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viera — Pisos Madrid</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #0f0e0c;
+  --paper:   #faf7f2;
+  --cream:   #f2ede3;
+  --warm:    #e8e0d0;
+  --border:  #d4c9b4;
+  --muted:   #8a8070;
+  --gold:    #b8975a;
+  --gold2:   #9a7d45;
+  --forest:  #2a4a35;
+  --forest2: #1e3526;
+  --rust:    #c0402a;
+  --amber:   #c07820;
+  --sky:     #2a5580;
+  --shadow:  rgba(15,14,12,0.1);
+  --shadow2: rgba(15,14,12,0.18);
+  --r-i: #c0402a;
+  --r-f: #c07820;
+  --r-p: #2a5580;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9998}
+
+/* HEADER */
+header{background:var(--forest2);padding:0 2.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 1px 0 rgba(255,255,255,0.05),0 4px 24px rgba(0,0,0,0.3)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--paper);letter-spacing:0.1em;text-transform:uppercase}
+.logo span{color:var(--gold);font-style:italic;font-weight:400}
+.header-right{display:flex;align-items:center;gap:.5rem}
+.pp{font-family:'DM Mono',monospace;font-size:0.58rem;padding:.2rem .6rem;border-radius:20px;letter-spacing:.06em;text-transform:uppercase}
+.pp-i{background:rgba(192,64,42,.25);color:#e8907a;border:1px solid rgba(192,64,42,.4)}
+.pp-f{background:rgba(192,120,32,.25);color:#e8b060;border:1px solid rgba(192,120,32,.4)}
+.pp-p{background:rgba(42,85,128,.3);color:#80b0d8;border:1px solid rgba(42,85,128,.5)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 64px);position:relative;z-index:1}
+
+/* SIDEBAR */
+.sidebar{background:var(--cream);border-right:1px solid var(--border);position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.sidebar-top{background:var(--forest);padding:1.2rem 1.5rem;flex-shrink:0}
+.sidebar-top-title{font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(250,247,242,.5);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.8rem}
+.api-wrap{display:flex;align-items:center;gap:.5rem}
+.api-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;transition:all .3s}
+.api-dot.ok{background:#6dcc8c;box-shadow:0 0 8px rgba(109,204,140,.6)}
+.api-dot.err{background:#e07070}
+.api-input{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:.5rem .75rem;font-family:'DM Mono',monospace;font-size:.72rem;color:var(--paper);outline:none;transition:border-color .2s}
+.api-input::placeholder{color:rgba(250,247,242,.3)}
+.api-input:focus{border-color:rgba(255,255,255,.35)}
+.api-hint{font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(250,247,242,.35);margin-top:.4rem}
+.api-hint a{color:var(--gold);text-decoration:none}
+
+.filter-group{border-bottom:1px solid var(--border);padding:1rem 1.5rem}
+.filter-group:last-of-type{border-bottom:none}
+.fg-label{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem}
+
+/* Op pills */
+.op-pills{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.op-pill{padding:.5rem;border:1px solid var(--border);border-radius:3px;font-size:.8rem;font-weight:500;text-align:center;cursor:pointer;transition:all .15s;background:white;color:var(--muted)}
+.op-pill:hover{border-color:var(--forest);color:var(--forest)}
+.op-pill.selected{background:var(--forest);border-color:var(--forest);color:white}
+
+/* Portal toggles */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;cursor:pointer}
+.toggle-row:not(:last-child){border-bottom:1px solid rgba(212,201,180,.4)}
+.toggle-name{font-size:.82rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
+.toggle-dot{width:6px;height:6px;border-radius:50%}
+.t-sw{width:32px;height:18px;border-radius:9px;background:var(--warm);position:relative;transition:background .2s;flex-shrink:0;border:1px solid var(--border)}
+.t-sw::after{content:'';position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-row.on .t-sw{background:var(--forest);border-color:var(--forest)}
+.toggle-row.on .t-sw::after{transform:translateX(14px);background:white}
+
+/* Barrios */
+.barrios-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem}
+.barrio-chip{padding:.35rem .5rem;border:1px solid var(--border);border-radius:3px;font-size:.72rem;cursor:pointer;transition:all .15s;text-align:center;background:white;color:var(--muted);user-select:none}
+.barrio-chip:hover{border-color:var(--forest);color:var(--forest)}
+.barrio-chip.sel{background:var(--forest);border-color:var(--forest);color:white;font-weight:500}
+.barrios-actions{display:flex;gap:.5rem;margin-top:.5rem}
+.btn-tiny{font-family:'DM Mono',monospace;font-size:.58rem;padding:.2rem .6rem;border:1px solid var(--border);border-radius:2px;background:white;color:var(--muted);cursor:pointer;transition:all .15s;letter-spacing:.05em}
+.btn-tiny:hover{border-color:var(--forest);color:var(--forest)}
+
+/* Period */
+.period-chips{display:flex;flex-direction:column;gap:.3rem}
+.period-chip{padding:.45rem .75rem;border:1px solid var(--border);border-radius:3px;font-size:.78rem;cursor:pointer;transition:all .15s;background:white;color:var(--ink);user-select:none;display:flex;align-items:center;gap:.5rem}
+.period-chip:hover{border-color:var(--forest)}
+.period-chip.sel{background:var(--forest);border-color:var(--forest);color:white}
+.period-chip.sel .pdot{background:white}
+.pdot{width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0}
+
+/* Range */
+.range-pair{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.range-item label{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);display:block;margin-bottom:.25rem}
+input[type="number"],select{width:100%;padding:.45rem .6rem;border:1px solid var(--border);border-radius:3px;font-family:'Inter',sans-serif;font-size:.8rem;background:white;color:var(--ink);outline:none;transition:border-color .2s}
+input[type="number"]:focus,select:focus{border-color:var(--forest)}
+
+/* Hab */
+.hab-pills{display:flex;gap:.3rem;flex-wrap:wrap}
+.hab-pill{width:36px;height:32px;border:1px solid var(--border);border-radius:3px;font-size:.8rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;background:white;color:var(--muted);font-weight:500}
+.hab-pill:hover{border-color:var(--forest);color:var(--forest)}
+.hab-pill.sel{background:var(--forest);border-color:var(--forest);color:white}
+
+/* Cochera */
+.cochera-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:.2rem 0}
+.cochera-lbl{font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
+
+/* Search btn */
+.btn-search{margin:1.5rem;padding:.95rem;background:var(--gold);color:white;border:none;border-radius:4px;font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;letter-spacing:.08em;cursor:pointer;transition:background .2s,transform .1s,box-shadow .2s;box-shadow:0 2px 12px rgba(184,151,90,.35);flex-shrink:0}
+.btn-search:hover{background:var(--gold2);box-shadow:0 4px 20px rgba(184,151,90,.45)}
+.btn-search:active{transform:scale(.98)}
+.btn-search:disabled{background:#bbb;box-shadow:none;cursor:not-allowed}
+
+/* MAIN */
+.main{padding:2rem 2rem 3rem;background:var(--paper)}
+
+/* Empty */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;gap:1rem}
+.empty-icon{width:80px;height:80px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--border)}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--muted);font-style:italic}
+.empty-sub{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--border);letter-spacing:.08em}
+
+/* Loading */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:2rem}
+.loading-portals{display:flex;gap:2rem}
+.lp-item{display:flex;flex-direction:column;align-items:center;gap:.6rem}
+.lp-ring{width:40px;height:40px;border-radius:50%;border:2px solid transparent;animation:spin 1.2s linear infinite}
+.lp-ring.ri{border-top-color:var(--r-i);border-right-color:rgba(192,64,42,.2)}
+.lp-ring.rf{border-top-color:var(--r-f);border-right-color:rgba(192,120,32,.2);animation-delay:.2s}
+.lp-ring.rp{border-top-color:var(--r-p);border-right-color:rgba(42,85,128,.2);animation-delay:.4s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lp-name{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.08em}
+.loading-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:var(--muted)}
+
+/* Stats */
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;margin-bottom:1.5rem}
+.stat-card{background:white;border:1px solid var(--border);border-radius:4px;padding:.9rem 1rem;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold)}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ink);line-height:1;margin-bottom:.2rem}
+.stat-lbl{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+
+/* Results header */
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.results-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;font-style:italic;color:var(--ink)}
+.dedup-tag{display:inline-flex;align-items:center;gap:.35rem;background:#eaf4ee;border:1px solid #b0d8be;color:var(--forest);padding:.25rem .7rem;border-radius:20px;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.06em}
+
+/* Sort */
+.sort-bar{display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.sort-lbl{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-right:.25rem}
+.sort-btn{padding:.3rem .75rem;border:1px solid var(--border);border-radius:20px;font-family:'DM Mono',monospace;font-size:.62rem;cursor:pointer;background:white;color:var(--muted);transition:all .15s;letter-spacing:.04em}
+.sort-btn:hover{border-color:var(--gold);color:var(--gold2)}
+.sort-btn.act{background:var(--forest);border-color:var(--forest);color:white}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:1.25rem}
+
+/* Card */
+.apt-card{background:white;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 2px 8px var(--shadow);transition:transform .2s,box-shadow .25s;animation:cardIn .4s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.apt-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px var(--shadow2)}
+
+.card-img{width:100%;height:174px;background:var(--warm);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--border);font-size:2.5rem}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.apt-card:hover .card-img img{transform:scale(1.04)}
+.cochera-img-badge{position:absolute;top:.6rem;right:.6rem;background:rgba(15,14,12,.75);backdrop-filter:blur(4px);color:var(--gold);font-family:'DM Mono',monospace;font-size:.58rem;padding:.2rem .5rem;border-radius:2px;letter-spacing:.06em;border:1px solid rgba(184,151,90,.4)}
+
+.card-body{padding:1rem 1.1rem}
+.card-price{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--ink);line-height:1;margin-bottom:.15rem}
+.card-ppm2{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:.6rem}
+
+.fb{display:inline-flex;align-items:center;gap:.3rem;font-family:'DM Mono',monospace;font-size:.6rem;padding:.2rem .55rem;border-radius:20px;margin-bottom:.6rem;font-weight:500;letter-spacing:.03em}
+.fb-fresh{background:#eaf4ee;color:#2a6040;border:1px solid #b0d8be}
+.fb-recent{background:#fef8e8;color:#7a5c00;border:1px solid #e8d070}
+.fb-old{background:#fdf0ee;color:#8a3020;border:1px solid #e0a898}
+.fb-none{background:var(--cream);color:var(--muted);border:1px solid var(--border)}
+
+.card-title{font-size:.85rem;font-weight:600;line-height:1.35;color:var(--ink);margin-bottom:.3rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-addr{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-specs{display:flex;gap:.9rem;margin-bottom:.75rem;flex-wrap:wrap}
+.spec{display:flex;align-items:center;gap:.3rem;font-size:.78rem;color:var(--muted);font-weight:500}
+.card-div{height:1px;background:var(--warm);margin:.75rem 0}
+.card-sources{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;margin-bottom:.75rem}
+.src{font-family:'DM Mono',monospace;font-size:.55rem;font-weight:500;padding:.15rem .45rem;border-radius:2px;letter-spacing:.05em;text-transform:uppercase}
+.src-i{background:rgba(192,64,42,.08);color:var(--r-i);border:1px solid rgba(192,64,42,.25)}
+.src-f{background:rgba(192,120,32,.08);color:var(--r-f);border:1px solid rgba(192,120,32,.25)}
+.src-p{background:rgba(42,85,128,.08);color:var(--r-p);border:1px solid rgba(42,85,128,.25)}
+.multi-tag{font-family:'DM Mono',monospace;font-size:.55rem;padding:.15rem .45rem;border-radius:2px;background:#eaf4ee;color:var(--forest);border:1px solid #b0d8be}
+
+.card-actions{display:grid;grid-template-columns:1fr auto;gap:.5rem}
+.btn-view{padding:.5rem .75rem;background:var(--forest);color:white;text-align:center;text-decoration:none;font-size:.75rem;font-weight:600;border-radius:3px;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:.3rem}
+.btn-view:hover{background:var(--forest2)}
+.btn-all{padding:.5rem .75rem;background:transparent;color:var(--forest);font-size:.72rem;font-weight:600;border:1px solid var(--forest);border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-all:hover{background:var(--forest);color:white}
+
+.error-box{background:#fdf0ee;border:1px solid #e8b0a0;border-radius:4px;padding:1.2rem 1.5rem;color:var(--rust);font-family:'DM Mono',monospace;font-size:.78rem;line-height:1.6}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  header{padding:0 1.5rem}
+  .main{padding:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">V<span>iera</span></div>
+  <div class="header-right">
+    <span class="pp pp-i">Idealista</span>
+    <span class="pp pp-f">Fotocasa</span>
+    <span class="pp pp-p">Pisos.com</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-top">
+      <div class="sidebar-top-title">🔑 Apify API Token</div>
+      <div class="api-wrap">
+        <div class="api-dot" id="apiDot"></div>
+        <input type="password" class="api-input" id="apiKey" placeholder="apify_api_xxxxxxxx" oninput="checkApiKey()">
+      </div>
+      <div class="api-hint">Obtené tu token en <a href="https://console.apify.com/account/integrations" target="_blank">console.apify.com</a></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">🔄 Operación</div>
+      <div class="op-pills">
+        <div class="op-pill selected" data-op="sale" onclick="selOp(this)">Venta</div>
+        <div class="op-pill" data-op="rent" onclick="selOp(this)">Alquiler</div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">📡 Portales</div>
+      <div class="toggle-row on" id="tr-idealista" onclick="togglePortal(this,'idealista')">
+        <div class="toggle-name"><div class="toggle-dot" style="background:var(--r-i)"></div>Idealista</div>
+        <div class="t-sw"></div>
+      </div>
+      <div class="toggle-row on" id="tr-fotocasa" onclick="togglePortal(this,'fotocasa')">
+        <div class="toggle-name"><div class="toggle-dot" style="background:var(--r-f)"></div>Fotocasa</div>
+        <div class="t-sw"></div>
+      </div>
+      <div class="toggle-row on" id="tr-pisos" onclick="togglePortal(this,'pisos')">
+        <div class="toggle-name"><div class="toggle-dot" style="background:var(--r-p)"></div>Pisos.com</div>
+        <div class="t-sw"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">📍 Barrios / Distritos</div>
+      <div class="barrios-grid" id="barriosGrid"></div>
+      <div class="barrios-actions">
+        <button class="btn-tiny" onclick="selAllBarrios()">Todos</button>
+        <button class="btn-tiny" onclick="clearBarrios()">Ninguno</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">📅 Período de publicación</div>
+      <div class="period-chips">
+        <div class="period-chip sel" data-period="all" onclick="selPeriod(this)"><div class="pdot"></div>Cualquier fecha</div>
+        <div class="period-chip" data-period="week" onclick="selPeriod(this)"><div class="pdot"></div>Menos de 1 semana</div>
+        <div class="period-chip" data-period="month" onclick="selPeriod(this)"><div class="pdot"></div>Menos de 1 mes</div>
+        <div class="period-chip" data-period="old" onclick="selPeriod(this)"><div class="pdot"></div>Más de 1 mes</div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">💶 Precio (€)</div>
+      <div class="range-pair">
+        <div class="range-item"><label>Mínimo</label><input type="number" id="precioMin" placeholder="100.000" step="10000" min="0"></div>
+        <div class="range-item"><label>Máximo</label><input type="number" id="precioMax" placeholder="600.000" step="10000" min="0"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">📐 Metros cuadrados</div>
+      <div class="range-pair">
+        <div class="range-item"><label>Mínimo</label><input type="number" id="m2Min" placeholder="40" min="0"></div>
+        <div class="range-item"><label>Máximo</label><input type="number" id="m2Max" placeholder="200" min="0"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">🛏 Habitaciones (mín.)</div>
+      <div class="hab-pills">
+        <div class="hab-pill sel" data-hab="0" onclick="selHab(this)">—</div>
+        <div class="hab-pill" data-hab="1" onclick="selHab(this)">1+</div>
+        <div class="hab-pill" data-hab="2" onclick="selHab(this)">2+</div>
+        <div class="hab-pill" data-hab="3" onclick="selHab(this)">3+</div>
+        <div class="hab-pill" data-hab="4" onclick="selHab(this)">4+</div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="cochera-row" onclick="toggleCochera()">
+        <div class="cochera-lbl">🚗 Con cochera / garaje</div>
+        <div class="t-sw" id="cocheraSw"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="fg-label">📊 Máx. resultados por portal</div>
+      <select id="maxResults">
+        <option value="20">20 por portal</option>
+        <option value="50" selected>50 por portal</option>
+        <option value="100">100 por portal</option>
+      </select>
+    </div>
+
+    <button class="btn-search" id="btnSearch" onclick="buscar()">Buscar departamentos</button>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div id="rc">
+      <div class="empty-state">
+        <div class="empty-icon">🏙</div>
+        <div class="empty-title">Encontrá tu próximo piso en Madrid</div>
+        <div class="empty-sub">Configurá los filtros · Consultamos los 3 portales simultáneamente</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const BARRIOS = ['Centro','Salamanca','Chamberí','Retiro','Chamartín','Tetuán','Moncloa','Arganzuela','Fuencarral','Hortaleza','Ciudad Lineal','Latina','Carabanchel','Vallecas','Moratalaz','Usera','Villaverde','Barajas','San Blas','Vicálvaro'];
+
+// State
+let portalesOn = {idealista:true,fotocasa:true,pisos:true};
+let operacion = 'sale';
+let selHabVal = 0;
+let selPeriodVal = 'all';
+let cocheraOn = false;
+let allResults = [];
+let curSort = 'fecha-desc';
+
+// Init barrios
+(function(){
+  const g = document.getElementById('barriosGrid');
+  BARRIOS.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'barrio-chip sel';
+    el.textContent = b;
+    el.dataset.b = b;
+    el.onclick = () => el.classList.toggle('sel');
+    g.appendChild(el);
+  });
+})();
+
+function checkApiKey(){
+  const k = document.getElementById('apiKey').value.trim();
+  const d = document.getElementById('apiDot');
+  d.className = 'api-dot' + (k.startsWith('apify_api_') && k.length > 20 ? ' ok' : k.length > 5 ? ' err' : '');
+}
+
+function selOp(el){
+  document.querySelectorAll('.op-pill').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected'); operacion = el.dataset.op;
+}
+
+function togglePortal(row, name){
+  row.classList.toggle('on'); portalesOn[name] = row.classList.contains('on');
+}
+
+function selAllBarrios(){ document.querySelectorAll('.barrio-chip').forEach(e=>e.classList.add('sel')); }
+function clearBarrios(){ document.querySelectorAll('.barrio-chip').forEach(e=>e.classList.remove('sel')); }
+
+function selPeriod(el){
+  document.querySelectorAll('.period-chip').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel'); selPeriodVal = el.dataset.period;
+}
+
+function selHab(el){
+  document.querySelectorAll('.hab-pill').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel'); selHabVal = parseInt(el.dataset.hab);
+}
+
+function toggleCochera(){
+  cocheraOn = !cocheraOn;
+  const sw = document.getElementById('cocheraSw');
+  sw.classList.toggle('on-sw', cocheraOn);
+}
+
+// Extra style for cochera switch
+document.head.insertAdjacentHTML('beforeend',`<style>.t-sw.on-sw{background:var(--forest)!important;border-color:var(--forest)!important}.t-sw.on-sw::after{transform:translateX(14px)!important;background:white!important}</style>`);
+
+function getBarrios(){ return Array.from(document.querySelectorAll('.barrio-chip.sel')).map(e=>e.dataset.b); }
+
+async function buscar(){
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if(!apiKey){alert('Ingresá tu Apify API Token primero');return;}
+  const barrios = getBarrios();
+  if(!barrios.length){alert('Seleccioná al menos un barrio');return;}
+  if(!portalesOn.idealista && !portalesOn.fotocasa && !portalesOn.pisos){alert('Seleccioná al menos un portal');return;}
+
+  const f = {
+    barrios,
+    precioMin: parseInt(document.getElementById('precioMin').value)||0,
+    precioMax: parseInt(document.getElementById('precioMax').value)||9999999,
+    m2Min: parseInt(document.getElementById('m2Min').value)||0,
+    m2Max: parseInt(document.getElementById('m2Max').value)||9999,
+    habitaciones: selHabVal,
+    operacion,
+    cochera: cocheraOn,
+    periodo: selPeriodVal,
+    maxResults: parseInt(document.getElementById('maxResults').value)||50,
+  };
+
+  document.getElementById('btnSearch').disabled = true;
+  showLoading();
+
+  try {
+    const ps = [];
+    if(portalesOn.idealista) ps.push(scrapeIdealista(apiKey,f).catch(e=>{ console.error('Idealista:',e); return []; }));
+    if(portalesOn.fotocasa)  ps.push(scrapeFotocasa(apiKey,f).catch(e=>{ console.error('Fotocasa:',e); return []; }));
+    if(portalesOn.pisos)     ps.push(scrapePisos(apiKey,f).catch(e=>{ console.error('Pisos:',e); return []; }));
+    const settled = await Promise.all(ps);
+    let raw = [];
+    settled.forEach(r=>{ if(Array.isArray(r)) raw=raw.concat(r); });
+    allResults = deduplicar(raw);
+    renderResults(allResults);
+  } catch(err){ showError(err.message); }
+  finally { document.getElementById('btnSearch').disabled=false; }
+}
+
+async function runApify(apiKey, actorId, input){
+  const r = await fetch(`https://api.apify.com/v2/acts/${actorId}/runs?token=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(`Error ${actorId}: ${e.error?.message||r.status}`);}
+  const {data:run} = await r.json();
+  for(let i=0;i<60;i++){
+    await sleep(3000);
+    const s=await(await fetch(`https://api.apify.com/v2/actor-runs/${run.id}?token=${apiKey}`)).json();
+    if(s.data.status==='SUCCEEDED')break;
+    if(['FAILED','ABORTED'].includes(s.data.status))throw new Error(`${actorId} falló`);
+  }
+  return (await(await fetch(`https://api.apify.com/v2/actor-runs/${run.id}/dataset/items?token=${apiKey}&limit=200`)).json());
+}
+
+function mapItem(i, fuente){
+  // Normalise fields across different actor output schemas
+  const precio = i.price || i.priceValue || i.Price || 0;
+  const m2 = i.size || i.surface || i.area || i.floorArea || i.squareMeters || 0;
+  const habitaciones = i.rooms || i.bedrooms || i.numRooms || i.roomNumber || 0;
+  const banos = i.bathrooms || i.numBathrooms || 0;
+  const direccion = i.address || i.location || i.municipality || i.neighborhood || i.district || 'Madrid';
+  const imagen = i.thumbnail || i.mainImage || i.images?.[0]?.url || i.images?.[0] || i.multimedia?.images?.[0]?.url || null;
+  const url = i.url || i.link || i.propertyUrl || null;
+  const fecha = i.date || i.publishedAt || i.createdAt || i.listingDate || i.publicationDate || i.insertionDate || i.updatedAt || null;
+  const cochera = !!(i.garage || i.parking || i.hasParking || i.garaje || i.parkingSpace ||
+    (i.features||[]).some(x=>/garaj|parking|cochera/i.test(x)) ||
+    (i.suggestedTexts?.title||'').toLowerCase().includes('garaje') ||
+    (i.description||'').toLowerCase().match(/\bgaraje\b|\bcochera\b|\bparking\b/));
+  return {
+    titulo: i.title || i.suggestedTexts?.title || i.description?.slice(0,80) || i.name || 'Sin título',
+    precio, m2, habitaciones, banos, direccion, imagen, url, fuente,
+    fechaPublicacion: fecha,
+    tieneCochera: cochera,
+  };
+}
+
+function zonaSlug(barrio){ return barrio.toLowerCase().replace(/\s+/g,'-').normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+// ── IDEALISTA: actor igolaizola~idealista-scraper ──
+// Input: { location, operation, propertyType, maxItems, minPrice, maxPrice, minSize, maxSize, bedrooms, garage }
+async function scrapeIdealista(k,f){
+  const zona = f.barrios.length===BARRIOS.length ? 'Madrid' : f.barrios[0];
+  const input = {
+    location: zona,
+    operation: f.operacion==='sale' ? 'sale' : 'rent',
+    propertyType: 'homes',
+    maxItems: f.maxResults,
+    ...(f.precioMin>0   && {minPrice: f.precioMin}),
+    ...(f.precioMax<9999999 && {maxPrice: f.precioMax}),
+    ...(f.m2Min>0       && {minSize: f.m2Min}),
+    ...(f.m2Max<9999    && {maxSize: f.m2Max}),
+    ...(f.habitaciones>0 && {bedrooms: String(f.habitaciones)}),
+    ...(f.cochera       && {garage: true}),
+  };
+  const items = await runApify(k, 'igolaizola~idealista-scraper', input);
+  return items.map(i=>mapItem(i,'idealista')).filter(p=>applyFilters(p,f));
+}
+
+// ── FOTOCASA: actor igolaizola~fotocasa-scraper ──
+// Input: { startUrls, maxItems } — URL-based
+async function scrapeFotocasa(k,f){
+  const op = f.operacion==='sale' ? 'comprar' : 'alquilar';
+  const zona = f.barrios.length===BARRIOS.length ? 'madrid' : `${zonaSlug(f.barrios[0])}-madrid`;
+  const url = `https://www.fotocasa.es/${op}/vivienda/${zona}/todas-las-zonas/l`;
+  const items = await runApify(k, 'igolaizola~fotocasa-scraper', {
+    startUrls: [{ url }],
+    maxItems: f.maxResults,
+  });
+  return items.map(i=>mapItem(i,'fotocasa')).filter(p=>applyFilters(p,f));
+}
+
+// ── PISOS.COM: actor azzouzana~fotocasa-es-search-results-scraper-by-search-url
+// (best available, uses Pisos.com URL — note: actor works on any fotocasa-style URL)
+// Fallback to ralvaromariano~fotocasa which is also reliable
+async function scrapePisos(k,f){
+  const op = f.operacion==='sale' ? 'venta' : 'alquiler';
+  const items = await runApify(k, 'ralvaromariano~fotocasa', {
+    startUrls: [{ url: `https://www.pisos.com/${op}/piso-madrid/` }],
+    maxItems: f.maxResults,
+  });
+  return items.map(i=>mapItem(i,'pisos.com')).filter(p=>applyFilters(p,f));
+}
+
+function applyFilters(p,f){
+  if(f.precioMin && p.precio && p.precio<f.precioMin) return false;
+  if(f.precioMax<9999999 && p.precio && p.precio>f.precioMax) return false;
+  if(f.m2Min && p.m2 && p.m2<f.m2Min) return false;
+  if(f.m2Max<9999 && p.m2 && p.m2>f.m2Max) return false;
+  if(f.habitaciones && p.habitaciones<f.habitaciones) return false;
+  if(f.cochera && !p.tieneCochera) return false;
+  if(f.periodo!=='all'){
+    const d=getDias(p.fechaPublicacion);
+    if(d!==null){
+      if(f.periodo==='week'  && d>=7)  return false;
+      if(f.periodo==='month' && d>=30) return false;
+      if(f.periodo==='old'   && d<30)  return false;
+    }
+  }
+  return true;
+}
+
+function deduplicar(items){
+  const m=new Map();
+  items.forEach(item=>{
+    const addr=(item.direccion||'').toLowerCase().replace(/[^a-z0-9\s]/g,'').split(' ').slice(0,3).join('_');
+    const key=`${Math.round(item.precio/1000)*1000}_${Math.round(item.m2/5)*5}_${addr}`;
+    if(m.has(key)){
+      const ex=m.get(key);
+      if(!ex.fuentes.includes(item.fuente)){ex.fuentes.push(item.fuente);ex.urls[item.fuente]=item.url;}
+      if(item.fechaPublicacion&&(!ex.fechaPublicacion||new Date(item.fechaPublicacion)<new Date(ex.fechaPublicacion)))ex.fechaPublicacion=item.fechaPublicacion;
+      if(item.tieneCochera)ex.tieneCochera=true;
+    } else {
+      m.set(key,{...item,fuentes:[item.fuente],urls:{[item.fuente]:item.url}});
+    }
+  });
+  return Array.from(m.values()).map(i=>({...i,deduplicado:i.fuentes.length>1}));
+}
+
+function sortItems(items,mode){
+  const s=[...items];
+  if(mode==='price-asc')  return s.sort((a,b)=>a.precio-b.precio);
+  if(mode==='price-desc') return s.sort((a,b)=>b.precio-a.precio);
+  if(mode==='m2-desc')    return s.sort((a,b)=>b.m2-a.m2);
+  if(mode==='ppm2-asc')   return s.sort((a,b)=>(a.m2?a.precio/a.m2:99999)-(b.m2?b.precio/b.m2:99999));
+  if(mode==='fecha-desc') return s.sort((a,b)=>{
+    const da=a.fechaPublicacion?new Date(a.fechaPublicacion):new Date(0);
+    const db=b.fechaPublicacion?new Date(b.fechaPublicacion):new Date(0);
+    return db-da;
+  });
+  return s;
+}
+
+function getDias(f){if(!f)return null;const d=new Date(f);if(isNaN(d))return null;return Math.floor((Date.now()-d)/86400000);}
+function haceCuanto(f){
+  const d=getDias(f);if(d===null)return null;
+  if(d===0)return{t:'Hoy',c:'fb-fresh'};
+  if(d===1)return{t:'Ayer',c:'fb-fresh'};
+  if(d<7)return{t:`Hace ${d} días`,c:'fb-fresh'};
+  if(d<14)return{t:'Hace 1 semana',c:'fb-fresh'};
+  if(d<30)return{t:`Hace ${Math.floor(d/7)} sem.`,c:'fb-recent'};
+  if(d<60)return{t:'Hace 1 mes',c:'fb-recent'};
+  if(d<365)return{t:`Hace ${Math.floor(d/30)} meses`,c:'fb-old'};
+  return{t:'+1 año',c:'fb-old'};
+}
+function fmtFecha(f){if(!f)return'';const d=new Date(f);if(isNaN(d))return'';return d.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtNum(n){return n?n.toLocaleString('es-ES'):'–';}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function renderResults(items){
+  const sorted=sortItems(items,curSort);
+  const dups=items.filter(i=>i.deduplicado).length;
+  const avgP=items.length?Math.round(items.reduce((a,b)=>a+b.precio,0)/items.length):0;
+  const avgM=items.length?Math.round(items.reduce((a,b)=>a+b.m2,0)/items.length):0;
+  const coch=items.filter(i=>i.tieneCochera).length;
+
+  if(!items.length){
+    document.getElementById('rc').innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Sin resultados</div><div class="empty-sub">Probá ampliando los criterios de búsqueda<br><br>Si el problema persiste, abrí la consola del navegador (F12)<br>para ver errores de los actores de Apify</div></div>`;
+    return;
+  }
+
+  const sb = (mode,label) => `<button class="sort-btn ${curSort===mode?'act':''}" onclick="setSort('${mode}')">${label}</button>`;
+
+  document.getElementById('rc').innerHTML = `
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-val">${items.length}</div><div class="stat-lbl">Resultados únicos</div></div>
+      <div class="stat-card"><div class="stat-val">€${fmtNum(avgP)}</div><div class="stat-lbl">Precio promedio</div></div>
+      <div class="stat-card"><div class="stat-val">${avgM}m²</div><div class="stat-lbl">Superficie media</div></div>
+      <div class="stat-card"><div class="stat-val">${coch}</div><div class="stat-lbl">Con cochera</div></div>
+      <div class="stat-card"><div class="stat-val">${dups}</div><div class="stat-lbl">Duplicados eliminados</div></div>
+    </div>
+    <div class="results-header">
+      <div class="results-title">${items.length} departamentos encontrados</div>
+      ${dups>0?`<span class="dedup-tag">✓ ${dups} duplicados unificados</span>`:''}
+    </div>
+    <div class="sort-bar">
+      <span class="sort-lbl">Ordenar</span>
+      ${sb('fecha-desc','Más recientes')}
+      ${sb('price-asc','Precio ↑')}
+      ${sb('price-desc','Precio ↓')}
+      ${sb('m2-desc','Mayor m²')}
+      ${sb('ppm2-asc','€/m² más bajo')}
+    </div>
+    <div class="grid">${sorted.map((apt,i)=>renderCard(apt,i)).join('')}</div>
+  `;
+}
+
+function setSort(mode){ curSort=mode; renderResults(allResults); }
+
+function renderCard(apt,idx){
+  const delay=Math.min(idx*40,600);
+  const ppm2=apt.m2?Math.round(apt.precio/apt.m2):0;
+  const ant=haceCuanto(apt.fechaPublicacion);
+  const fechaFmt=fmtFecha(apt.fechaPublicacion);
+  const urlP=apt.urls[apt.fuentes[0]]||apt.url||'#';
+  const srcMap={idealista:'src-i',fotocasa:'src-f',pisos:'src-p'};
+  return `
+  <div class="apt-card" style="animation-delay:${delay}ms">
+    <div class="card-img">
+      ${apt.imagen?`<img src="${apt.imagen}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='🏠'">`:'🏠'}
+      ${apt.tieneCochera?`<div class="cochera-img-badge">🚗 Cochera</div>`:''}
+    </div>
+    <div class="card-body">
+      <div class="card-price">€${fmtNum(apt.precio)}</div>
+      ${ppm2?`<div class="card-ppm2">${fmtNum(ppm2)} €/m²</div>`:''}
+      <div class="fb ${ant?ant.c:'fb-none'}" title="${fechaFmt}">🕐 ${ant?ant.t:'Fecha no disponible'}${fechaFmt?' · '+fechaFmt:''}</div>
+      <div class="card-title">${apt.titulo}</div>
+      <div class="card-addr">📍 ${apt.direccion}</div>
+      <div class="card-specs">
+        ${apt.m2?`<span class="spec">📐 ${apt.m2} m²</span>`:''}
+        ${apt.habitaciones?`<span class="spec">🛏 ${apt.habitaciones} hab.</span>`:''}
+        ${apt.banos?`<span class="spec">🚿 ${apt.banos} baños</span>`:''}
+      </div>
+      <div class="card-div"></div>
+      <div class="card-sources">
+        ${apt.fuentes.map(f=>`<span class="src ${srcMap[f]||'src-i'}">${f}</span>`).join('')}
+        ${apt.deduplicado?`<span class="multi-tag">✓ ${apt.fuentes.length} portales</span>`:''}
+      </div>
+      <div class="card-actions">
+        <a href="${urlP}" target="_blank" class="btn-view">Ver anuncio →</a>
+        ${apt.fuentes.length>1?`<button class="btn-all" onclick="verTodos(${idx})">Ver todos</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function verTodos(idx){
+  const sorted=sortItems(allResults,curSort);
+  Object.values(sorted[idx].urls).forEach(u=>{if(u)window.open(u,'_blank');});
+}
+
+function showLoading(){
+  const rings={idealista:'ri',fotocasa:'rf',pisos:'rp'};
+  const active=Object.entries(portalesOn).filter(([,v])=>v);
+  document.getElementById('rc').innerHTML=`
+    <div class="loading-wrap">
+      <div class="loading-portals">
+        ${active.map(([n])=>`<div class="lp-item"><div class="lp-ring ${rings[n]}"></div><div class="lp-name">${n}</div></div>`).join('')}
+      </div>
+      <div class="loading-text">Consultando portales, puede tardar 1–3 minutos…</div>
+    </div>`;
+}
+
+function showError(msg){
+  document.getElementById('rc').innerHTML=`<div class="error-box">⚠ ${msg}<br><br>Verificá que tu API token sea correcto y que tengas créditos en Apify.</div>`;
+}
+</script>
+</body>
+</html>
